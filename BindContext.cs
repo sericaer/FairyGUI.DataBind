@@ -1,40 +1,65 @@
 using FairyGUI;
+using FairyGUI.DataBind.BindCustomDatas;
 using System;
 using System.ComponentModel;
 
 namespace FairyGUI.DataBind
 {
-    public partial class BindContext : IDisposable
+    public class BindContext : IDisposable
     {
-        private GObject gObject;
+        private GObject gComponent;
         private INotifyPropertyChanged view;
 
         EventHandlerManager handerManager;
 
-        public BindContext(GObject gObject, INotifyPropertyChanged view)
+        public BindContext(GComponent gComponent, INotifyPropertyChanged view)
         {
             handerManager = new EventHandlerManager();
-            gObject.Bind(view, this);
+
+            gComponent.EnumerateLeafObj((leaf) =>
+            {
+                var customStr = leaf.data as string;
+                if (customStr == null)
+                {
+                    return;
+                }
+
+                var customData = BindCustomData.Build(leaf.GetType(), customStr);
+                if(customData == null)
+                {
+                    return;
+                }
+
+                var binds = customData.BindUI2View(leaf, view);
+                foreach(var bind in binds)
+                {
+                    handerManager.Add(bind.key, bind.handler);
+                } 
+            });
 
             view.PropertyChanged += OnViewPropetyUpdate;
 
             handerManager.RefreshInitValue(view);
         }
 
-        private void OnViewPropetyUpdate(object sender, PropertyChangedEventArgs e)
-        {
-            var hander = handerManager.GetHandler(e.PropertyName);
-            hander.Invoke(sender);
-        }
-
         public void Dispose()
         {
+            view.PropertyChanged -= OnViewPropetyUpdate;
             handerManager.Clean();
         }
 
-        internal void Add(GTextField textField, string customData, Action<object> hander)
+        private void OnViewPropetyUpdate(object sender, PropertyChangedEventArgs e)
         {
-            handerManager.Add(textField, customData, hander);
+            var handers = handerManager.GetHandlers(e.PropertyName);
+            if(handers == null)
+            {
+                return;
+            }
+
+            foreach(var hander in handers)
+            {
+                hander.Invoke(sender);
+            }
         }
     }
 }
