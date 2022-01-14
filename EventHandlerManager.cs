@@ -26,11 +26,6 @@ namespace FairyGUI.DataBind
             dict[key].Add(hander);
         }
 
-        internal void Clean()
-        {
-            dict.Clear();
-        }
-
         internal IEnumerable<Action<object>> GetHandlers(string propertyName)
         {
             List<Action<object>> rslt;
@@ -42,12 +37,17 @@ namespace FairyGUI.DataBind
             return null;
         }
 
-        internal void RefreshInitValue(INotifyPropertyChanged view)
+        internal void Initialize(INotifyPropertyChanged view)
         {
             foreach (var handler in dict.Values.SelectMany(x => x))
             {
                 handler.Invoke(view);
             }
+        }
+
+        internal void Exit()
+        {
+            dict.Clear();
         }
     }
 

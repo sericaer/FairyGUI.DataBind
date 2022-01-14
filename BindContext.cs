@@ -5,6 +5,11 @@ using System.ComponentModel;
 
 namespace FairyGUI.DataBind
 {
+    public interface ICmd
+    {
+        void Exec();
+    }
+
     public class BindContext : IDisposable
     {
         private GObject gComponent;
@@ -39,13 +44,13 @@ namespace FairyGUI.DataBind
 
             view.PropertyChanged += OnViewPropetyUpdate;
 
-            handerManager.RefreshInitValue(view);
+            handerManager.Initialize(view);
         }
 
         public void Dispose()
         {
             view.PropertyChanged -= OnViewPropetyUpdate;
-            handerManager.Clean();
+            handerManager.Exit();
         }
 
         private void OnViewPropetyUpdate(object sender, PropertyChangedEventArgs e)

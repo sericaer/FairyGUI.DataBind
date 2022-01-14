@@ -12,7 +12,8 @@ namespace FairyGUI.DataBind.BindCustomDatas
     {
         private static Dictionary<Type, Type> dict = new Dictionary<Type, Type>()
         {
-            { typeof(GTextField), typeof(TextFieldBindCustomData) }
+            { typeof(GTextField), typeof(TextFieldBindCustomData) },
+            { typeof(GButton), typeof(ButtonBindCustomData)}
         };
 
         public static BindCustomData Build(Type uiType, string customStr)

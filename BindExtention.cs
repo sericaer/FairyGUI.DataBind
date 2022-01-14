@@ -17,13 +17,19 @@ namespace FairyGUI.DataBind
         {
             foreach (var child in component.GetChildren())
             {
-                if (child is GComponent subCom)
+                if (child is GButton || child is GTextField)
+                {
+                    action?.Invoke(child);
+                }
+                else if (child is GComponent subCom)
                 {
                     component.EnumerateLeafObj(action);
-                    continue;
                 }
-
-                action?.Invoke(child);
+                else
+                {
+                    throw new NotImplementedException();
+                }
+                
             }
         }
     }
