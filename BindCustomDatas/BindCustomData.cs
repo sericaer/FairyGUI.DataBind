@@ -13,7 +13,8 @@ namespace FairyGUI.DataBind.BindCustomDatas
         private static Dictionary<Type, Type> dict = new Dictionary<Type, Type>()
         {
             { typeof(GTextField), typeof(TextFieldBindCustomData) },
-            { typeof(GButton), typeof(ButtonBindCustomData)}
+            { typeof(GButton), typeof(ButtonBindCustomData)},
+            { typeof(GTextInput), typeof(TextInputBindCustomData)}
         };
 
         public static BindCustomData Build(Type uiType, string customStr)
@@ -35,6 +36,6 @@ namespace FairyGUI.DataBind.BindCustomDatas
             }
         }
 
-        public abstract IEnumerable<(string key, Action<object> handler)> BindUI2View(GObject gObject, INotifyPropertyChanged view);
+        public abstract IEnumerable<(string key, BindHandler handler)> BindUI2View(GObject gObject, INotifyPropertyChanged view);
     }
 }

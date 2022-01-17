@@ -63,7 +63,7 @@ namespace FairyGUI.DataBind
 
             foreach(var hander in handers)
             {
-                hander.Invoke(sender);
+                hander.OnViewUpdate?.Invoke(sender);
             }
         }
     }

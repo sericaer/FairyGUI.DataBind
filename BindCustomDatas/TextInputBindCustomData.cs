@@ -1,19 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FairyGUI.DataBind.BindCustomDatas
 {
     [System.Serializable]
-    class ButtonBindCustomData : BindCustomData
+    class TextInputBindCustomData : BindCustomData
     {
         [System.Serializable]
         public class BindTemplate
         {
-            public string onClick;
+            public string text;
         }
 
         public BindTemplate bind;
@@ -24,28 +21,38 @@ namespace FairyGUI.DataBind.BindCustomDatas
 
             if (bind != null)
             {
-                var button = gObject as GButton;
+                var textInput = gObject as GTextInput;
 
-                if (bind.onClick != null)
+                if (bind.text != null)
                 {
-                    var bindkey = bind.onClick;
-                    var method = view.GetType().GetMethod(bindkey);
+                    var bindkey = bind.text;
+                    var property = view.GetType().GetProperty(bindkey);
 
-                    EventCallback1 onClick = (context) =>
+                    Action<object> viewUpdate = (view) =>
                     {
-                        method.Invoke(view, null);
+                        textInput.text = property.GetValue(view).ToString();
+                    };
+
+                    EventCallback1 uiUpdate = (context) =>
+                    {
+                         property.SetValue(view, textInput.text);
                     };
 
                     var handler = new BindHandler()
                     {
                         Init = (view) =>
                         {
-                            button.onClick.Add(onClick);
+                            viewUpdate(view);
+                            textInput.onChanged.Add(uiUpdate);
+
                         },
+
                         Exit = ()=>
                         {
-                            button.onClick.Remove(onClick);
-                        }
+                            textInput.onChanged.Remove(uiUpdate);
+                        },
+
+                        OnViewUpdate = viewUpdate
                     };
 
                     rslt.Add((bindkey, handler));

@@ -18,9 +18,9 @@ namespace FairyGUI.DataBind.BindCustomDatas
 
         public BindTemplate bind;
 
-        public override IEnumerable<(string key, Action<object> handler)> BindUI2View(GObject gObject, INotifyPropertyChanged view)
+        public override IEnumerable<(string key, BindHandler handler)> BindUI2View(GObject gObject, INotifyPropertyChanged view)
         {
-            var rslt = new List<(string key, Action<object> handler)>();
+            var rslt = new List<(string key, BindHandler handler)>();
 
             if (bind != null)
             {
@@ -31,7 +31,19 @@ namespace FairyGUI.DataBind.BindCustomDatas
                     var bindkey = bind.text;
                     var property = view.GetType().GetProperty(bindkey);
 
-                    rslt.Add((bindkey, (sender) => textField.text = property.GetValue(sender).ToString()));
+                    var handler = new BindHandler()
+                    {
+                        Init = (view) =>
+                        {
+                            textField.text = property.GetValue(view).ToString();
+                        },
+                        OnViewUpdate = (view) =>
+                        {
+                            textField.text = property.GetValue(view).ToString();
+                        }
+                    };
+
+                    rslt.Add((bindkey, handler));
                 }
             }
 

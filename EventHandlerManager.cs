@@ -9,26 +9,29 @@ namespace FairyGUI.DataBind
     class EventHandlerManager
     {
 
-        private Dictionary<string, List<Action<object>>> dict;
+        //private Dictionary<string, List<Action<object>>> dict;
+
+        private Dictionary<string, List<BindHandler>> dict;
 
         public EventHandlerManager()
         {
-            dict = new Dictionary<string, List<Action<object>>>();
+            //dict = new Dictionary<string, List<Action<object>>>();
+            dict = new Dictionary<string, List<BindHandler>>();
         }
 
-        internal void Add(string key, Action<object> hander)
+        internal void Add(string key, BindHandler hander)
         {
             if (!dict.ContainsKey(key))
             {
-                dict.Add(key, new List<Action<object>>());
+                dict.Add(key, new List<BindHandler>());
             }
 
             dict[key].Add(hander);
         }
 
-        internal IEnumerable<Action<object>> GetHandlers(string propertyName)
+        internal IEnumerable<BindHandler> GetHandlers(string propertyName)
         {
-            List<Action<object>> rslt;
+            List<BindHandler> rslt;
             if(dict.TryGetValue(propertyName, out rslt))
             {
                 return rslt;
@@ -39,16 +42,37 @@ namespace FairyGUI.DataBind
 
         internal void Initialize(INotifyPropertyChanged view)
         {
+            //foreach (var handler in dict.Values.SelectMany(x => x))
+            //{
+            //    handler.Invoke(view);
+            //}
+
             foreach (var handler in dict.Values.SelectMany(x => x))
             {
-                handler.Invoke(view);
+                handler.Init?.Invoke(view);
             }
         }
 
         internal void Exit()
         {
+            //dict.Clear();
+
+            foreach (var handler in dict.Values.SelectMany(x => x))
+            {
+                handler.Exit?.Invoke();
+            }
+
             dict.Clear();
         }
+    }
+
+    class BindHandler
+    {
+        public Action<object> Init;
+        public Action Exit;
+
+        public Action<object> OnViewUpdate;
+        public Action<object> OnUIUpdate;
     }
 
 }
