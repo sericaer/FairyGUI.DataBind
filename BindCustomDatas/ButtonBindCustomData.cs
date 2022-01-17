@@ -14,6 +14,7 @@ namespace FairyGUI.DataBind.BindCustomDatas
         public new  class BindTemplate : BindCustomData.BindTemplate
         {
             public string onClick;
+            public string selected;
         }
 
         public BindTemplate bind;
@@ -30,9 +31,52 @@ namespace FairyGUI.DataBind.BindCustomDatas
             var button = gObject as GButton;
 
             BindEnable(bind.enable, view, button, rslt);
+
             BindOnClick(view, button, rslt);
-            
+            BindSelected(view, button, rslt);
+
             return rslt;
+        }
+
+        private void BindSelected(INotifyPropertyChanged view, GButton button, List<(string key, BindHandler handler)> rslt)
+        {
+            if (bind.selected == null)
+            {
+                return;
+            }
+
+            var property = view.GetType().GetProperty(bind.selected);
+            if (property == null)
+            {
+                return;
+            }
+
+            EventCallback1 onSelected = (context) =>
+            {
+                property.SetValue(view, button.selected);
+            };
+
+            var handler = new BindHandler()
+            {
+                Init = (view) =>
+                {
+                    button.selected = (bool)property.GetValue(view);
+
+                    button.onChanged.Add(onSelected);
+                },
+
+                Exit = ()=>
+                {
+                    button.onChanged.Remove(onSelected);
+                },
+
+                OnViewUpdate = (view) =>
+                {
+                    button.selected = (bool)property.GetValue(view);
+                }
+            };
+
+            rslt.Add((bind.selected, handler));
         }
 
         private void BindOnClick(INotifyPropertyChanged view, GButton button, List<(string key, BindHandler handler)> list)
