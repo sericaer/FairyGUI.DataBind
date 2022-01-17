@@ -21,31 +21,31 @@ namespace FairyGUI.DataBind.BindCustomDatas
         public override IEnumerable<(string key, BindHandler handler)> BindUI2View(GObject gObject, INotifyPropertyChanged view)
         {
             var rslt = new List<(string key, BindHandler handler)>();
-
-            if (bind != null)
+            if (bind == null || bind.text == null)
             {
-                var textField = gObject as GTextField;
-
-                if (bind.text != null)
-                {
-                    var bindkey = bind.text;
-                    var property = view.GetType().GetProperty(bindkey);
-
-                    var handler = new BindHandler()
-                    {
-                        Init = (view) =>
-                        {
-                            textField.text = property.GetValue(view).ToString();
-                        },
-                        OnViewUpdate = (view) =>
-                        {
-                            textField.text = property.GetValue(view).ToString();
-                        }
-                    };
-
-                    rslt.Add((bindkey, handler));
-                }
+                return rslt;
             }
+
+            var property = view.GetType().GetProperty(bind.text);
+            if (property == null)
+            {
+                return rslt;
+            }
+
+            var textField = gObject as GTextField;
+            var handler = new BindHandler()
+            {
+                Init = (view) =>
+                {
+                    textField.text = property.GetValue(view).ToString();
+                },
+                OnViewUpdate = (view) =>
+                {
+                    textField.text = property.GetValue(view).ToString();
+                }
+            };
+
+            rslt.Add((bind.text, handler));
 
             return rslt;
         }

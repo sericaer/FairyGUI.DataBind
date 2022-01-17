@@ -17,7 +17,7 @@ namespace FairyGUI.DataBind
         {
             foreach (var child in component.GetChildren())
             {
-                if (child is GButton || child is GTextField)
+                if (BindCustomData.dict.ContainsKey(child.GetType()))
                 {
                     action?.Invoke(child);
                 }
