@@ -11,10 +11,9 @@ namespace FairyGUI.DataBind.BindCustomDatas
     class ButtonBindCustomData : BindCustomData
     {
         [System.Serializable]
-        public class BindTemplate
+        public new  class BindTemplate : BindCustomData.BindTemplate
         {
             public string onClick;
-            public string enable;
         }
 
         public BindTemplate bind;
@@ -30,39 +29,10 @@ namespace FairyGUI.DataBind.BindCustomDatas
 
             var button = gObject as GButton;
 
+            BindEnable(bind.enable, view, button, rslt);
             BindOnClick(view, button, rslt);
-            BindEnable(view, button, rslt);
-
-
+            
             return rslt;
-        }
-
-        private void BindEnable(INotifyPropertyChanged view, GButton button, List<(string key, BindHandler handler)> rslt)
-        {
-            if (bind.enable == null)
-            {
-                return;
-            }
-
-            var property = view.GetType().GetProperty(bind.enable);
-            if (property == null)
-            {
-                return;
-            }
-
-            var handler = new BindHandler()
-            {
-                Init = (view) =>
-                {
-                    button.enabled = (bool)property.GetValue(view);
-                },
-                OnViewUpdate = (view) =>
-                {
-                    button.enabled = (bool)property.GetValue(view);
-                }
-            };
-
-            rslt.Add((bind.enable, handler));
         }
 
         private void BindOnClick(INotifyPropertyChanged view, GButton button, List<(string key, BindHandler handler)> list)

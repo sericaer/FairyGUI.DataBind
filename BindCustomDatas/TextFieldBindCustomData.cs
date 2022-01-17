@@ -11,7 +11,7 @@ namespace FairyGUI.DataBind.BindCustomDatas
     class TextFieldBindCustomData : BindCustomData
     {
         [System.Serializable]
-        public class BindTemplate
+        public new class BindTemplate : BindCustomData.BindTemplate
         {
             public string text;
         }
@@ -21,15 +21,24 @@ namespace FairyGUI.DataBind.BindCustomDatas
         public override IEnumerable<(string key, BindHandler handler)> BindUI2View(GObject gObject, INotifyPropertyChanged view)
         {
             var rslt = new List<(string key, BindHandler handler)>();
-            if (bind == null || bind.text == null)
+            if (bind == null)
             {
                 return rslt;
             }
 
+            BindEnable(bind.enable, view, gObject, rslt);
+
+            BindText(gObject, view, rslt);
+
+            return rslt;
+        }
+
+        private void BindText(GObject gObject, INotifyPropertyChanged view, List<(string key, BindHandler handler)> rslt)
+        {
             var property = view.GetType().GetProperty(bind.text);
             if (property == null)
             {
-                return rslt;
+                return;
             }
 
             var textField = gObject as GTextField;
@@ -46,8 +55,6 @@ namespace FairyGUI.DataBind.BindCustomDatas
             };
 
             rslt.Add((bind.text, handler));
-
-            return rslt;
         }
     }
 }

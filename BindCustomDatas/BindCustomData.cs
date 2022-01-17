@@ -17,6 +17,13 @@ namespace FairyGUI.DataBind.BindCustomDatas
             { typeof(GTextInput), typeof(TextInputBindCustomData)}
         };
 
+        public class BindTemplate
+        {
+            public string enable;
+        }
+
+        public abstract IEnumerable<(string key, BindHandler handler)> BindUI2View(GObject gObject, INotifyPropertyChanged view);
+
         public static BindCustomData Build(Type uiType, string customStr)
         {
             try
@@ -36,6 +43,32 @@ namespace FairyGUI.DataBind.BindCustomDatas
             }
         }
 
-        public abstract IEnumerable<(string key, BindHandler handler)> BindUI2View(GObject gObject, INotifyPropertyChanged view);
+        protected void BindEnable(string enableKey, INotifyPropertyChanged view, GObject button, List<(string key, BindHandler handler)> rslt)
+        {
+            if (enableKey == null)
+            {
+                return;
+            }
+
+            var property = view.GetType().GetProperty(enableKey);
+            if (property == null)
+            {
+                return;
+            }
+
+            var handler = new BindHandler()
+            {
+                Init = (view) =>
+                {
+                    button.enabled = (bool)property.GetValue(view);
+                },
+                OnViewUpdate = (view) =>
+                {
+                    button.enabled = (bool)property.GetValue(view);
+                }
+            };
+
+            rslt.Add((enableKey, handler));
+        }
     }
 }
