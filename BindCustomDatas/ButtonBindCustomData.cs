@@ -14,6 +14,7 @@ namespace FairyGUI.DataBind.BindCustomDatas
         public class BindTemplate
         {
             public string onClick;
+            public string enable;
         }
 
         public BindTemplate bind;
@@ -22,37 +23,75 @@ namespace FairyGUI.DataBind.BindCustomDatas
         {
             var rslt = new List<(string key, BindHandler handler)>();
 
-            if (bind != null)
+            if (bind == null)
             {
-                var button = gObject as GButton;
-
-                if (bind.onClick != null)
-                {
-                    var bindkey = bind.onClick;
-                    var method = view.GetType().GetMethod(bindkey);
-
-                    EventCallback1 onClick = (context) =>
-                    {
-                        method.Invoke(view, null);
-                    };
-
-                    var handler = new BindHandler()
-                    {
-                        Init = (view) =>
-                        {
-                            button.onClick.Add(onClick);
-                        },
-                        Exit = ()=>
-                        {
-                            button.onClick.Remove(onClick);
-                        }
-                    };
-
-                    rslt.Add((bindkey, handler));
-                }
+                return rslt;
             }
 
+            var button = gObject as GButton;
+
+            BindOnClick(view, button, rslt);
+            BindEnable(view, button, rslt);
+
+
             return rslt;
+        }
+
+        private void BindEnable(INotifyPropertyChanged view, GButton button, List<(string key, BindHandler handler)> rslt)
+        {
+            if (bind.enable == null)
+            {
+                return;
+            }
+
+            var property = view.GetType().GetProperty(bind.enable);
+            if (property == null)
+            {
+                return;
+            }
+
+            var handler = new BindHandler()
+            {
+                Init = (view) =>
+                {
+                    button.enabled = (bool)property.GetValue(view);
+                },
+                OnViewUpdate = (view) =>
+                {
+                    button.enabled = (bool)property.GetValue(view);
+                }
+            };
+
+            rslt.Add((bind.enable, handler));
+        }
+
+        private void BindOnClick(INotifyPropertyChanged view, GButton button, List<(string key, BindHandler handler)> list)
+        {
+            if (bind.onClick == null)
+            {
+                return;
+            }
+
+            var method = view.GetType().GetMethod(bind.onClick);
+
+            EventCallback1 onClick = (context) =>
+            {
+                method.Invoke(view, null);
+            };
+
+            var handler = new BindHandler()
+            {
+                Init = (view) =>
+                {
+                    button.onClick.Add(onClick);
+                },
+                Exit = () =>
+                {
+                    button.onClick.Remove(onClick);
+                }
+            };
+
+            list.Add((bind.onClick, handler));
         }
     }
 }
