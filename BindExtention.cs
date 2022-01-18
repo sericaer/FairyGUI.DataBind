@@ -23,12 +23,12 @@ namespace FairyGUI.DataBind
                 }
                 else if (child is GComponent subCom)
                 {
-                    component.EnumerateLeafObj(action);
+                    subCom.EnumerateLeafObj(action);
                 }
-                else
-                {
-                    throw new NotImplementedException();
-                }
+                //else
+                //{
+                //    throw new NotImplementedException();
+                //}
                 
             }
         }

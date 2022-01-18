@@ -1,4 +1,5 @@
-﻿using System;
+﻿using JiangH.API;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -90,7 +91,9 @@ namespace FairyGUI.DataBind.BindCustomDatas
 
             EventCallback1 onClick = (context) =>
             {
-                method.Invoke(view, null);
+                var rslt = method.Invoke(view, null);
+
+                BindContext.DoCmd?.Invoke(button, rslt);
             };
 
             var handler = new BindHandler()

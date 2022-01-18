@@ -12,6 +12,8 @@ namespace FairyGUI.DataBind
 
     public class BindContext : IDisposable
     {
+        public static Action<GObject, object> DoCmd;
+
         private GObject gComponent;
         private INotifyPropertyChanged view;
 
@@ -41,6 +43,8 @@ namespace FairyGUI.DataBind
                     handerManager.Add(bind.key, bind.handler);
                 } 
             });
+
+            this.view = view;
 
             view.PropertyChanged += OnViewPropetyUpdate;
 

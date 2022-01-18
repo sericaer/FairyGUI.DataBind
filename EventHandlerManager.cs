@@ -8,14 +8,10 @@ namespace FairyGUI.DataBind
 
     class EventHandlerManager
     {
-
-        //private Dictionary<string, List<Action<object>>> dict;
-
         private Dictionary<string, List<BindHandler>> dict;
 
         public EventHandlerManager()
         {
-            //dict = new Dictionary<string, List<Action<object>>>();
             dict = new Dictionary<string, List<BindHandler>>();
         }
 
@@ -42,11 +38,6 @@ namespace FairyGUI.DataBind
 
         internal void Initialize(INotifyPropertyChanged view)
         {
-            //foreach (var handler in dict.Values.SelectMany(x => x))
-            //{
-            //    handler.Invoke(view);
-            //}
-
             foreach (var handler in dict.Values.SelectMany(x => x))
             {
                 handler.Init?.Invoke(view);
@@ -55,8 +46,6 @@ namespace FairyGUI.DataBind
 
         internal void Exit()
         {
-            //dict.Clear();
-
             foreach (var handler in dict.Values.SelectMany(x => x))
             {
                 handler.Exit?.Invoke();
