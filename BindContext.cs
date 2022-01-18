@@ -6,11 +6,6 @@ using System.ComponentModel;
 
 namespace FairyGUI.DataBind
 {
-    public interface ICmd
-    {
-        void Exec();
-    }
-
     public class BindContext : IDisposable
     {
         public static Action<GObject, object> DoCmd;
@@ -62,6 +57,8 @@ namespace FairyGUI.DataBind
             view.PropertyChanged -= OnViewPropetyUpdate;
             handerManager.Exit();
             all.Remove(this);
+
+            gComponent.Dispose();
         }
 
         private void OnViewPropetyUpdate(object sender, PropertyChangedEventArgs e)
