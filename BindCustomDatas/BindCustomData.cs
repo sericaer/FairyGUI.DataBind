@@ -14,7 +14,8 @@ namespace FairyGUI.DataBind.BindCustomDatas
         {
             { typeof(GTextField), typeof(TextFieldBindCustomData) },
             { typeof(GButton), typeof(ButtonBindCustomData)},
-            { typeof(GTextInput), typeof(TextInputBindCustomData)}
+            { typeof(GTextInput), typeof(TextInputBindCustomData)},
+            { typeof(GList), typeof(ListBindCustomData)}
         };
 
         public class BindTemplate

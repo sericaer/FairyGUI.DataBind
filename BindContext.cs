@@ -1,6 +1,7 @@
 using FairyGUI;
 using FairyGUI.DataBind.BindCustomDatas;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 
 namespace FairyGUI.DataBind
@@ -14,8 +15,10 @@ namespace FairyGUI.DataBind
     {
         public static Action<GObject, object> DoCmd;
 
-        private GObject gComponent;
-        private INotifyPropertyChanged view;
+        internal static List<BindContext> all = new List<BindContext>();
+
+        public GObject gComponent { get; private set; }
+        public INotifyPropertyChanged view { get; private set; }
 
         EventHandlerManager handerManager;
 
@@ -45,16 +48,20 @@ namespace FairyGUI.DataBind
             });
 
             this.view = view;
+            this.gComponent = gComponent;
 
             view.PropertyChanged += OnViewPropetyUpdate;
 
             handerManager.Initialize(view);
+
+            all.Add(this);
         }
 
         public void Dispose()
         {
             view.PropertyChanged -= OnViewPropetyUpdate;
             handerManager.Exit();
+            all.Remove(this);
         }
 
         private void OnViewPropetyUpdate(object sender, PropertyChangedEventArgs e)

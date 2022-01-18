@@ -32,5 +32,10 @@ namespace FairyGUI.DataBind
                 
             }
         }
+
+        public static GObject Clone(this GObject gObject)
+        {
+            return gObject.packageItem.owner.CreateObject(gObject.packageItem.name);
+        }
     }
 }
