@@ -12,7 +12,8 @@ namespace FairyGUI.DataBind.BindCustomDatas
     {
         public readonly static Dictionary<Type, Type> dict = new Dictionary<Type, Type>()
         {
-            { typeof(GTextField), typeof(TextFieldBindCustomData) },
+            { typeof(TextField), typeof(TextFieldBindCustomData) },
+            { typeof(GRichTextField), typeof(RichTextFieldBindCustomData) },
             { typeof(GButton), typeof(ButtonBindCustomData)},
             { typeof(GTextInput), typeof(TextInputBindCustomData)},
             { typeof(GList), typeof(ListBindCustomData)}
@@ -21,6 +22,7 @@ namespace FairyGUI.DataBind.BindCustomDatas
         public class BindTemplate
         {
             public string enable;
+            public string tips;
         }
 
         public abstract IEnumerable<(string key, BindHandler handler)> BindUI2View(GObject gObject, INotifyPropertyChanged view);
@@ -70,6 +72,34 @@ namespace FairyGUI.DataBind.BindCustomDatas
             };
 
             rslt.Add((enableKey, handler));
+        }
+
+        protected void BindTips(string tipsKey, INotifyPropertyChanged view, GObject gObject, List<(string key, BindHandler handler)> rslt)
+        {
+            if (tipsKey == null)
+            {
+                return;
+            }
+
+            var property = view.GetType().GetProperty(tipsKey);
+            if (property == null)
+            {
+                return;
+            }
+
+            var handler = new BindHandler()
+            {
+                Init = (view) =>
+                {
+                    gObject.tooltips = (string)property.GetValue(view);
+                },
+                OnViewUpdate = (view) =>
+                {
+                    gObject.tooltips = (string)property.GetValue(view);
+                }
+            };
+
+            rslt.Add((tipsKey, handler));
         }
     }
 }
