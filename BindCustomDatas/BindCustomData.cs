@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Reflection;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace FairyGUI.DataBind.BindCustomDatas
@@ -12,7 +9,7 @@ namespace FairyGUI.DataBind.BindCustomDatas
     {
         public readonly static Dictionary<Type, Type> dict = new Dictionary<Type, Type>()
         {
-            { typeof(TextField), typeof(TextFieldBindCustomData) },
+            { typeof(GTextField), typeof(TextFieldBindCustomData) },
             { typeof(GRichTextField), typeof(RichTextFieldBindCustomData) },
             { typeof(GButton), typeof(ButtonBindCustomData)},
             { typeof(GTextInput), typeof(TextInputBindCustomData)},
