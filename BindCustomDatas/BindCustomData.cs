@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace FairyGUI.DataBind.BindCustomDatas
 {
-    abstract class BindCustomData
+    public abstract class BindCustomData
     {
         public readonly static Dictionary<Type, Type> dict = new Dictionary<Type, Type>()
         {
@@ -13,7 +13,8 @@ namespace FairyGUI.DataBind.BindCustomDatas
             { typeof(GRichTextField), typeof(RichTextFieldBindCustomData) },
             { typeof(GButton), typeof(ButtonBindCustomData)},
             { typeof(GTextInput), typeof(TextInputBindCustomData)},
-            { typeof(GList), typeof(ListBindCustomData)}
+            { typeof(GList), typeof(ListBindCustomData)},
+            { typeof(GSlider), typeof(SliderBindCustomData)}
         };
 
         public class BindTemplate
@@ -71,7 +72,7 @@ namespace FairyGUI.DataBind.BindCustomDatas
             rslt.Add((enableKey, handler));
         }
 
-        protected void BindTips(string tipsKey, INotifyPropertyChanged view, GObject gObject, List<(string key, BindHandler handler)> rslt)
+        internal void BindTips(string tipsKey, INotifyPropertyChanged view, GObject gObject, List<(string key, BindHandler handler)> rslt)
         {
             if (tipsKey == null)
             {

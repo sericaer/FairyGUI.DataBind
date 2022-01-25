@@ -55,7 +55,7 @@ namespace FairyGUI.DataBind
         }
     }
 
-    class BindHandler
+    public class BindHandler
     {
         public Action<object> Init;
         public Action Exit;
