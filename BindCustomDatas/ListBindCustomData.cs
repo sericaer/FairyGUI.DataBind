@@ -40,9 +40,6 @@ namespace FairyGUI.DataBind.BindCustomDatas
             var viewCollection = view.GetType().GetProperty(listSource).GetValue(view);
             var gList = gObject as GList;
 
-            var itemTemplate = gList.GetChildAt(0);
-            gList.RemoveChildrenToPool();
-
             NotifyCollectionChangedEventHandler onCollectionChanged = (sender, e) =>
             {
                 switch (e.Action)
@@ -51,7 +48,7 @@ namespace FairyGUI.DataBind.BindCustomDatas
                         {
                             foreach (var data in e.NewItems)
                             {
-                                var newItem = itemTemplate.Clone().asCom;
+                                var newItem = gList.AddItemFromPool().asCom;
                                 newItem.BindDataSource(data as INotifyPropertyChanged);
                                 gList.AddChild(newItem);
                             }
@@ -78,7 +75,7 @@ namespace FairyGUI.DataBind.BindCustomDatas
 
                     foreach (var data in (IEnumerable<object>)viewCollection)
                     {
-                        var newItem = itemTemplate.Clone().asCom;
+                        var newItem = gList.AddItemFromPool().asCom;
                         newItem.BindDataSource(data as INotifyPropertyChanged);
                         gList.AddChild(newItem);
                     }
