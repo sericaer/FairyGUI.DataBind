@@ -7,9 +7,9 @@ namespace FairyGUI.DataBind
 {
     public static class BindExtention
     {
-        public static BindContext BindDataSource(this GComponent component, INotifyPropertyChanged view)
+        public static void BindDataSource(this GComponent component, INotifyPropertyChanged view)
         {
-            return new BindContext(component, view);
+            BindContext.Bind(component, view);
         }
 
 

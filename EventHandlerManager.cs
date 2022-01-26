@@ -6,7 +6,7 @@ using System.Linq;
 namespace FairyGUI.DataBind
 {
 
-    class EventHandlerManager
+    class EventHandlerManager : IDisposable
     {
         private Dictionary<string, List<BindHandler>> dict;
 
@@ -44,24 +44,29 @@ namespace FairyGUI.DataBind
             }
         }
 
-        internal void Exit()
+        public void Dispose()
         {
             foreach (var handler in dict.Values.SelectMany(x => x))
             {
-                handler.Exit?.Invoke();
+                handler.Dispose();
             }
 
             dict.Clear();
         }
     }
 
-    public class BindHandler
+    public class BindHandler : IDisposable
     {
         public Action<object> Init;
         public Action Exit;
 
         public Action<object> OnViewUpdate;
         public Action<object> OnUIUpdate;
+
+        public void Dispose()
+        {
+            Exit?.Invoke() ;
+        }
     }
 
 }

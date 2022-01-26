@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Linq;
 
 namespace FairyGUI.DataBind.BindCustomDatas
 {
@@ -60,9 +61,8 @@ namespace FairyGUI.DataBind.BindCustomDatas
                         {
                             foreach (var data in e.OldItems)
                             {
-                                var context = BindContext.all.Find(x => x.view == data);
+                                var context = BindContext.all.Values.Single(x => x.view == data);
                                 gList.RemoveChild(context.gComponent);
-                                context.Dispose();
                             }
                         }
                         break;

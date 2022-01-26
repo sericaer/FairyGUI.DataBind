@@ -3,6 +3,7 @@ using FairyGUI.DataBind.BindCustomDatas;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using UnityEngine;
 
 namespace FairyGUI.DataBind
 {
@@ -10,14 +11,35 @@ namespace FairyGUI.DataBind
     {
         public static Action<GObject, object> DoCmd;
 
-        internal static List<BindContext> all = new List<BindContext>();
+        internal static Dictionary<GComponent, BindContext> all = new Dictionary<GComponent, BindContext>();
 
         public GObject gComponent { get; private set; }
         public INotifyPropertyChanged view { get; private set; }
 
-        EventHandlerManager handerManager;
+        private EventHandlerManager handerManager;
 
-        public BindContext(GComponent gComponent, INotifyPropertyChanged view)
+        public static void Bind(GComponent gComponent, INotifyPropertyChanged view)
+        {
+            if(all.ContainsKey(gComponent))
+            {
+                throw new Exception();
+            }
+
+            var context = new BindContext(gComponent, view);
+            all.Add(gComponent, context);
+
+            Debug.Log($"[JLOG] Bind({gComponent.GetHashCode()} {view.GetHashCode()}), context({context.GetHashCode()})");
+
+            gComponent.onRemovedFromStage.Add(() =>
+            {
+                Debug.Log($"[JLOG] onRemovedFromStage({gComponent.GetHashCode()}");
+
+                all[gComponent].Dispose();
+                all.Remove(gComponent);
+            });
+        }
+
+        private BindContext(GComponent gComponent, INotifyPropertyChanged view)
         {
             handerManager = new EventHandlerManager();
 
@@ -47,18 +69,15 @@ namespace FairyGUI.DataBind
 
             view.PropertyChanged += OnViewPropetyUpdate;
 
-            handerManager.Initialize(view);
-
-            all.Add(this);
+            handerManager.Initialize(view); 
         }
 
         public void Dispose()
         {
-            view.PropertyChanged -= OnViewPropetyUpdate;
-            handerManager.Exit();
-            all.Remove(this);
+            Debug.Log($"[JLOG] Dispose({this.GetHashCode()}");
 
-            gComponent.Dispose();
+            view.PropertyChanged -= OnViewPropetyUpdate;
+            handerManager.Dispose();
         }
 
         private void OnViewPropetyUpdate(object sender, PropertyChangedEventArgs e)
