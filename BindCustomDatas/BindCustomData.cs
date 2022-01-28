@@ -25,35 +25,66 @@ namespace FairyGUI.DataBind.BindCustomDatas
 
         internal EventHandlerManager handerManager = new EventHandlerManager();
 
-        public abstract IEnumerable<(string key, BindHandler handler)> BindUI2View(GObject gObject, INotifyPropertyChanged view);
 
-        public static BindCustomData Build(Type uiType, string customStr)
+        public static BindCustomData Build(GObject gObject, INotifyPropertyChanged view)
         {
             try
             {
+                var customStr = gObject.data as string;
+                if (customStr == null)
+                {
+                    return null;
+                }
+
                 Type BindCustomDataType;
-                if (!dict.TryGetValue(uiType, out BindCustomDataType))
+                if (!dict.TryGetValue(gObject.GetType(), out BindCustomDataType))
                 {
                     throw new NotImplementedException();
                 }
 
                 var bindCustomData = JsonUtility.FromJson(customStr, BindCustomDataType) as BindCustomData;
+                bindCustomData.Init(gObject, view);
+
+                bindCustomData.handerManager.Initialize(view);
+
                 return bindCustomData;
             }
-            catch(Exception e)
+            catch (Exception e)
             {
-                Debug.LogWarning($"messgae:{e.Message} type:{uiType}, custom data:{customStr}");
+                Debug.LogWarning($"messgae:{e.Message} type:{gObject.GetType()}, custom data:{gObject.data}");
                 return null;
+            }
+        }
+
+        internal abstract void Init(GObject leaf, INotifyPropertyChanged view);
+
+        public void Dispose()
+        {
+            handerManager.Dispose();
+        }
+
+        internal void OnViewPropetyUpdate(object sender, PropertyChangedEventArgs e)
+        {
+            var handers = handerManager.GetHandlers(e.PropertyName);
+            if (handers == null)
+            {
+                return;
+            }
+
+            foreach (var hander in handers)
+            {
+                hander.OnViewUpdate?.Invoke(sender);
             }
         }
 
         protected void BindEnable(string enableKey, GObject leaf, INotifyPropertyChanged view)
         {
-            var property = view.GetType().GetProperty(enableKey);
-            if (property == null)
+            if(enableKey == null)
             {
                 return;
             }
+
+            var property = view.GetType().GetProperty(enableKey);
 
             var handler = new BindHandler()
             {
@@ -70,37 +101,7 @@ namespace FairyGUI.DataBind.BindCustomDatas
             handerManager.Add(enableKey, handler);
         }
 
-        protected void BindEnable(string enableKey, INotifyPropertyChanged view, GObject button, List<(string key, BindHandler handler)> rslt)
-        {
-            if (enableKey == null)
-            {
-                return;
-            }
-
-            var property = view.GetType().GetProperty(enableKey);
-            if (property == null)
-            {
-                return;
-            }
-
-            var handler = new BindHandler()
-            {
-                Init = (view) =>
-                {
-                    button.enabled = (bool)property.GetValue(view);
-                },
-                OnViewUpdate = (view) =>
-                {
-                    button.enabled = (bool)property.GetValue(view);
-                }
-            };
-
-            rslt.Add((enableKey, handler));
-        }
-
-        internal abstract void Init(GObject leaf, INotifyPropertyChanged view);
-
-        internal void BindTips(string tipsKey, INotifyPropertyChanged view, GObject gObject, List<(string key, BindHandler handler)> rslt)
+        protected void BindTips(string tipsKey, GObject gObject, INotifyPropertyChanged view)
         {
             if (tipsKey == null)
             {
@@ -125,26 +126,7 @@ namespace FairyGUI.DataBind.BindCustomDatas
                 }
             };
 
-            rslt.Add((tipsKey, handler));
-        }
-
-        internal void OnViewPropetyUpdate(object sender, PropertyChangedEventArgs e)
-        {
-            var handers = handerManager.GetHandlers(e.PropertyName);
-            if (handers == null)
-            {
-                return;
-            }
-
-            foreach (var hander in handers)
-            {
-                hander.OnViewUpdate?.Invoke(sender);
-            }
-        }
-
-        public void Dispose()
-        {
-            handerManager.Dispose();
+            handerManager.Add(tipsKey, handler);
         }
     }
 }

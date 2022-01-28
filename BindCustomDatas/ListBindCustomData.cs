@@ -18,28 +18,21 @@ namespace FairyGUI.DataBind.BindCustomDatas
 
         public ListBindTemplate bind;
 
-        public override IEnumerable<(string key, BindHandler handler)> BindUI2View(GObject gObject, INotifyPropertyChanged view)
+        internal override void Init(GObject gObject, INotifyPropertyChanged view)
         {
-            var rslt = new List<(string key, BindHandler handler)>();
-            if (bind == null)
-            {
-                return rslt;
-            }
+            var list = gObject.asList;
 
-            BindListSource(bind.listSource, view, gObject, rslt);
-
-            return rslt;
+            BindListSource(list, view);
         }
 
-        private void BindListSource(string listSource, INotifyPropertyChanged view, GObject gObject, List<(string key, BindHandler handler)> rslt)
+        private void BindListSource(GList gList, INotifyPropertyChanged view)
         {
-            if(listSource == null)
+            if (bind.listSource == null)
             {
                 return;
             }
 
-            var viewCollection = view.GetType().GetProperty(listSource).GetValue(view);
-            var gList = gObject as GList;
+            var viewCollection = view.GetType().GetProperty(bind.listSource).GetValue(view);
 
             NotifyCollectionChangedEventHandler onCollectionChanged = (sender, e) =>
             {
@@ -60,7 +53,7 @@ namespace FairyGUI.DataBind.BindCustomDatas
                             foreach (var data in e.OldItems)
                             {
                                 var context = BindContext.all.Values.SingleOrDefault(x => x.view == data);
-                                if(context == null)
+                                if (context == null)
                                 {
                                     Debug.Log($"[JLOG] can not find {data.GetHashCode()}");
                                 }
@@ -96,12 +89,7 @@ namespace FairyGUI.DataBind.BindCustomDatas
 
             Debug.Log($"[JLOG] GListHander({handler.GetHashCode()})");
 
-            rslt.Add((bind.listSource, handler));
-        }
-
-        internal override void Init(GObject leaf, INotifyPropertyChanged view)
-        {
-            throw new NotImplementedException();
+            handerManager.Add(bind.listSource, handler);
         }
     }
 }

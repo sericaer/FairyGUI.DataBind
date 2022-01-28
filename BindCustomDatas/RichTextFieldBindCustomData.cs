@@ -18,49 +18,37 @@ namespace FairyGUI.DataBind.BindCustomDatas
 
         public BindTemplate bind;
 
-        public override IEnumerable<(string key, BindHandler handler)> BindUI2View(GObject gObject, INotifyPropertyChanged view)
+        internal override void Init(GObject gObject, INotifyPropertyChanged view)
         {
-            var rslt = new List<(string key, BindHandler handler)>();
-            if (bind == null)
-            {
-                return rslt;
-            }
+            var richTextField = gObject.asRichTextField;
 
-            BindEnable(bind.enable, view, gObject, rslt);
-            BindTips(bind.tips, view, gObject, rslt);
+            BindEnable(bind.enable, gObject, view);
+            BindTips(bind.tips, gObject, view);
 
-            BindText(gObject, view, rslt);
-
-            return rslt;
+            BindText(richTextField, view);
         }
 
-        private void BindText(GObject gObject, INotifyPropertyChanged view, List<(string key, BindHandler handler)> rslt)
+        private void BindText(GRichTextField richTextField, INotifyPropertyChanged view)
         {
-            var property = view.GetType().GetProperty(bind.text);
-            if (property == null)
+            if(bind.text == null)
             {
                 return;
             }
 
-            var textField = gObject as GRichTextField;
+            var property = view.GetType().GetProperty(bind.text);
             var handler = new BindHandler()
             {
                 Init = (view) =>
                 {
-                    textField.text = property.GetValue(view).ToString();
+                    richTextField.text = property.GetValue(view).ToString();
                 },
                 OnViewUpdate = (view) =>
                 {
-                    textField.text = property.GetValue(view).ToString();
+                    richTextField.text = property.GetValue(view).ToString();
                 }
             };
 
-            rslt.Add((bind.text, handler));
-        }
-
-        internal override void Init(GObject leaf, INotifyPropertyChanged view)
-        {
-            throw new NotImplementedException();
+            handerManager.Add(bind.text, handler);
         }
     }
 }

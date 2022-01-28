@@ -18,28 +18,21 @@ namespace FairyGUI.DataBind.BindCustomDatas
 
         public BindTemplate bind;
 
-        public override IEnumerable<(string key, BindHandler handler)> BindUI2View(GObject gObject, INotifyPropertyChanged view)
+        internal override void Init(GObject gObject, INotifyPropertyChanged view)
         {
-            var rslt = new List<(string key, BindHandler handler)>();
-            if (bind == null)
-            {
-                return rslt;
-            }
+            var slider = gObject.asSlider;
 
-            BindValue(gObject, view, rslt);
-
-            return rslt;
+            BindValue(slider, view);
         }
 
-        private void BindValue(GObject gObject, INotifyPropertyChanged view, List<(string key, BindHandler handler)> rslt)
+        private void BindValue(GSlider slider, INotifyPropertyChanged view)
         {
-            var property = view.GetType().GetProperty(bind.value);
-            if (property == null)
+            if(bind.value == null)
             {
                 return;
             }
 
-            var slider = gObject as GSlider;
+            var property = view.GetType().GetProperty(bind.value);
 
             EventCallback1 uiUpdate = (context) =>
             {
@@ -63,12 +56,7 @@ namespace FairyGUI.DataBind.BindCustomDatas
                 }
             };
 
-            rslt.Add((bind.value, handler));
-        }
-
-        internal override void Init(GObject leaf, INotifyPropertyChanged view)
-        {
-            throw new NotImplementedException();
+            handerManager.Add(bind.value, handler);
         }
     }
 }

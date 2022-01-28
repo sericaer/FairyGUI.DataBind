@@ -1,5 +1,4 @@
-﻿using JiangH.API;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -20,37 +19,24 @@ namespace FairyGUI.DataBind.BindCustomDatas
 
         public BindTemplate bind;
 
-        public override IEnumerable<(string key, BindHandler handler)> BindUI2View(GObject gObject, INotifyPropertyChanged view)
+        internal override void Init(GObject gObject, INotifyPropertyChanged view)
         {
-            var rslt = new List<(string key, BindHandler handler)>();
+            var button = gObject.asButton;
 
-            if (bind == null)
-            {
-                return rslt;
-            }
+            BindEnable(bind.enable, button, view);
 
-            var button = gObject as GButton;
-
-            BindEnable(bind.enable, view, button, rslt);
-
-            BindOnClick(view, button, rslt);
-            BindSelected(view, button, rslt);
-
-            return rslt;
+            BindOnClick(button, view);
+            BindOnSelected(button, view);
         }
 
-        private void BindSelected(INotifyPropertyChanged view, GButton button, List<(string key, BindHandler handler)> rslt)
+        private void BindOnSelected(GButton button, INotifyPropertyChanged view)
         {
-            if (bind.selected == null)
+            if(bind.selected == null)
             {
                 return;
             }
 
             var property = view.GetType().GetProperty(bind.selected);
-            if (property == null)
-            {
-                return;
-            }
 
             EventCallback1 onSelected = (context) =>
             {
@@ -66,7 +52,7 @@ namespace FairyGUI.DataBind.BindCustomDatas
                     button.onChanged.Add(onSelected);
                 },
 
-                Exit = ()=>
+                Exit = () =>
                 {
                     button.onChanged.Remove(onSelected);
                 },
@@ -77,10 +63,10 @@ namespace FairyGUI.DataBind.BindCustomDatas
                 }
             };
 
-            rslt.Add((bind.selected, handler));
+            handerManager.Add(bind.selected, handler);
         }
 
-        private void BindOnClick(INotifyPropertyChanged view, GButton button, List<(string key, BindHandler handler)> list)
+        private void BindOnClick(GButton button, INotifyPropertyChanged view)
         {
             if (bind.onClick == null)
             {
@@ -108,12 +94,7 @@ namespace FairyGUI.DataBind.BindCustomDatas
                 }
             };
 
-            list.Add((bind.onClick, handler));
-        }
-
-        internal override void Init(GObject leaf, INotifyPropertyChanged view)
-        {
-            throw new NotImplementedException();
+            handerManager.Add(bind.onClick, handler);
         }
     }
 }

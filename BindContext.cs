@@ -16,8 +16,6 @@ namespace FairyGUI.DataBind
         public GObject gComponent { get; private set; }
         public INotifyPropertyChanged view { get; private set; }
 
-        //private EventHandlerManager handerManager;
-
         private List<BindCustomData> bindDatas;
 
         public static void Bind(GComponent gComponent, INotifyPropertyChanged view)
@@ -43,40 +41,23 @@ namespace FairyGUI.DataBind
 
         private BindContext(GComponent gComponent, INotifyPropertyChanged view)
         {
-            //handerManager = new EventHandlerManager();
             bindDatas = new List<BindCustomData>();
 
             gComponent.EnumerateLeafObj((leaf) =>
             {
-                var customStr = leaf.data as string;
-                if (customStr == null)
+                var customData = BindCustomData.Build(leaf, view);
+                if (customData == null)
                 {
                     return;
                 }
-
-                var customData = BindCustomData.Build(leaf.GetType(), customStr);
-                if(customData == null)
-                {
-                    return;
-                }
-
-                customData.Init(leaf, view);
 
                 bindDatas.Add(customData);
-
-                //var binds = customData.BindUI2View(leaf, view);
-                //foreach(var bind in binds)
-                //{
-                //    handerManager.Add(bind.key, bind.handler);
-                //} 
             });
 
             this.view = view;
             this.gComponent = gComponent;
 
             view.PropertyChanged += OnViewPropetyUpdate;
-
-            //handerManager.Initialize(view); 
         }
 
         public void Dispose()
@@ -84,8 +65,8 @@ namespace FairyGUI.DataBind
             Debug.Log($"[JLOG] Dispose({this.GetHashCode()}");
 
             view.PropertyChanged -= OnViewPropetyUpdate;
-            //handerManager.Dispose();
-            foreach(var bindData in bindDatas)
+            
+            foreach (var bindData in bindDatas)
             {
                 bindData.Dispose();
             }
