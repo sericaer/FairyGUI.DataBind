@@ -56,5 +56,34 @@ namespace FairyGUI.DataBind.BindCustomDatas
 
             rslt.Add((bind.text, handler));
         }
+
+        internal override void Init(GObject gObject, INotifyPropertyChanged view)
+        {
+            BindEnable(bind.enable, gObject, view);
+            BindText(gObject.asTextField, view);
+        }
+
+        private void BindText(GTextField textField, INotifyPropertyChanged view)
+        {
+            var property = view.GetType().GetProperty(bind.text);
+            if (property == null)
+            {
+                return;
+            }
+
+            var handler = new BindHandler()
+            {
+                Init = (view) =>
+                {
+                    textField.text = property.GetValue(view).ToString();
+                },
+                OnViewUpdate = (view) =>
+                {
+                    textField.text = property.GetValue(view).ToString();
+                }
+            };
+
+            handerManager.Add(bind.text, handler);
+        }
     }
 }

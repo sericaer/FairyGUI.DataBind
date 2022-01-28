@@ -16,7 +16,9 @@ namespace FairyGUI.DataBind
         public GObject gComponent { get; private set; }
         public INotifyPropertyChanged view { get; private set; }
 
-        private EventHandlerManager handerManager;
+        //private EventHandlerManager handerManager;
+
+        private List<BindCustomData> bindDatas;
 
         public static void Bind(GComponent gComponent, INotifyPropertyChanged view)
         {
@@ -41,7 +43,8 @@ namespace FairyGUI.DataBind
 
         private BindContext(GComponent gComponent, INotifyPropertyChanged view)
         {
-            handerManager = new EventHandlerManager();
+            //handerManager = new EventHandlerManager();
+            bindDatas = new List<BindCustomData>();
 
             gComponent.EnumerateLeafObj((leaf) =>
             {
@@ -57,11 +60,15 @@ namespace FairyGUI.DataBind
                     return;
                 }
 
-                var binds = customData.BindUI2View(leaf, view);
-                foreach(var bind in binds)
-                {
-                    handerManager.Add(bind.key, bind.handler);
-                } 
+                customData.Init(leaf, view);
+
+                bindDatas.Add(customData);
+
+                //var binds = customData.BindUI2View(leaf, view);
+                //foreach(var bind in binds)
+                //{
+                //    handerManager.Add(bind.key, bind.handler);
+                //} 
             });
 
             this.view = view;
@@ -69,7 +76,7 @@ namespace FairyGUI.DataBind
 
             view.PropertyChanged += OnViewPropetyUpdate;
 
-            handerManager.Initialize(view); 
+            //handerManager.Initialize(view); 
         }
 
         public void Dispose()
@@ -77,20 +84,18 @@ namespace FairyGUI.DataBind
             Debug.Log($"[JLOG] Dispose({this.GetHashCode()}");
 
             view.PropertyChanged -= OnViewPropetyUpdate;
-            handerManager.Dispose();
+            //handerManager.Dispose();
+            foreach(var bindData in bindDatas)
+            {
+                bindData.Dispose();
+            }
         }
 
         private void OnViewPropetyUpdate(object sender, PropertyChangedEventArgs e)
         {
-            var handers = handerManager.GetHandlers(e.PropertyName);
-            if(handers == null)
+            foreach (var bindData in bindDatas)
             {
-                return;
-            }
-
-            foreach(var hander in handers)
-            {
-                hander.OnViewUpdate?.Invoke(sender);
+                bindData.OnViewPropetyUpdate(sender, e);
             }
         }
     }

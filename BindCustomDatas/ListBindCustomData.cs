@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
+using UnityEngine;
 
 namespace FairyGUI.DataBind.BindCustomDatas
 {
@@ -58,7 +59,11 @@ namespace FairyGUI.DataBind.BindCustomDatas
                         {
                             foreach (var data in e.OldItems)
                             {
-                                var context = BindContext.all.Values.Single(x => x.view == data);
+                                var context = BindContext.all.Values.SingleOrDefault(x => x.view == data);
+                                if(context == null)
+                                {
+                                    Debug.Log($"[JLOG] can not find {data.GetHashCode()}");
+                                }
                                 gList.RemoveChild(context.gComponent);
                             }
                         }
@@ -89,7 +94,14 @@ namespace FairyGUI.DataBind.BindCustomDatas
                 }
             };
 
+            Debug.Log($"[JLOG] GListHander({handler.GetHashCode()})");
+
             rslt.Add((bind.listSource, handler));
+        }
+
+        internal override void Init(GObject leaf, INotifyPropertyChanged view)
+        {
+            throw new NotImplementedException();
         }
     }
 }

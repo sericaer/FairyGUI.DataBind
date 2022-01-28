@@ -72,5 +72,10 @@ namespace FairyGUI.DataBind.BindCustomDatas
 
             rslt.Add((bindkey, handler));
         }
+
+        internal override void Init(GObject leaf, INotifyPropertyChanged view)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
